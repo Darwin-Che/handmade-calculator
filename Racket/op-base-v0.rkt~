@@ -1,0 +1,6 @@
+#lang racket
+
+(provide op-lst op?)
+
+(define op-lst (list #\+ #\- #\* #\\))
+(define (op? x) (if (boolean? (member x op-lst)) #false #true))

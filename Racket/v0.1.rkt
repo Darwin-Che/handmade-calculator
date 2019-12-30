@@ -20,3 +20,34 @@
         (helper (cdr acc1) (cons (car acc1) acc2))))
   (helper (reverse lst) empty))
 
+(define (list->tree lst) 
+  ;; 1. if lst is empty, error, empty expression
+  ;; 2. if lst has one element, if it is number, return itself, else, error
+  ;; 3. if lst has + -, convert the last occurrence
+  ;; 4. if lst has * /, convert the last occurrence
+  ;; 5. #true we are screwed
+  (cond [(empty? lst) (error "empty expression")]
+        [(empty? (cdr lst)) (if (number? (car lst)) (car lst) (error "not a number"))]
+        [(not (boolean? (memf disc+- lst)))
+         (let ([tmp (concat-last lst disc+-)])
+           (make-op-node (first tmp) (list->tree (second tmp)) (list->tree (third tmp))))]
+        [(not (boolean? (memf disc*/ lst)))
+         (let ([tmp (concat-last lst disc*/)])
+           (make-op-node (first tmp) (list->tree (second tmp)) (list->tree (third tmp))))]
+        [#true (error "we are screwed")]))
+
+(define (op-trans x)
+  (cond [(eq? x #\+) (λ (a b) (+ a b))]
+        [(eq? x #\-) (λ (a b) (- a b))]
+        [(eq? x #\*) (λ (a b) (* a b))]
+        [(eq? x #\/) (λ (a b) (/ a b))]
+        [#true (error "some strange op-sign")]))
+
+(define (calc-n node)
+  (if (number? node)
+      node
+      ((op-trans (op-node-op node))
+       (calc-n (op-node-left node))
+       (calc-n (op-node-right node)))))
+
+(define calc (λ () (calc-n (list->tree (groupnum (read-line))))))

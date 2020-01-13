@@ -1,4 +1,5 @@
 #lang racket
+(require "op-base-v0.rkt")
 (provide check)
 
 ;; check if it is a legal expression

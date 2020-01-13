@@ -1,7 +1,7 @@
 #lang racket
-(require "groupnum.rkt")
-(require "op-base-v0.rkt")
-(require "check-v0.rkt")
+(require "src/groupnum.rkt")
+(require "src/op-base-v0.rkt")
+(require "src/check-v0.rkt")
 
 (define-struct op-node (op left right))
 
@@ -35,13 +35,6 @@
          (let ([tmp (concat-last lst disc*/)])
            (make-op-node (first tmp) (list->tree (second tmp)) (list->tree (third tmp))))]
         [#true (error "we are screwed")]))
-
-(define (op-trans x)
-  (cond [(eq? x #\+) (λ (a b) (+ a b))]
-        [(eq? x #\-) (λ (a b) (- a b))]
-        [(eq? x #\*) (λ (a b) (* a b))]
-        [(eq? x #\/) (λ (a b) (/ a b))]
-        [#true (error "some strange op-sign")]))
 
 (define (calc-n node)
   (if (number? node)

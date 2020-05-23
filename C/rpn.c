@@ -172,8 +172,13 @@ void shuntYard(){
                 }
             }
             // popout the '(' in opStack and the ')' in inputList
-            free(popListOp());
-            free(popListInp());
+            struct TokenList* tmp;
+            tmp = popListOp();
+            free(tmp->lp);
+            free(tmp);
+            tmp = popListInp();
+            free(tmp->rp);
+            free(tmp);
             break;
         case NUM:
             // transfer it to output

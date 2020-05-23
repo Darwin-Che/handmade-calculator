@@ -43,6 +43,9 @@ struct TokenList {
     struct TokenList* next;
 };
 
+char globalStr[150];
+int strIndex;
+
 // function declaration
 
 // boolean function, no side-effects
@@ -65,10 +68,10 @@ struct Number* readnum();
 struct Operator* readop();
 
 // print structure of TokenList
-void printEx(struct TokenList* l);
+void printTL(struct TokenList* l);
 
 // free memory
-void freeEx(struct TokenList* l);
+void freeTL(struct TokenList* l);
 
 // main function
 struct TokenList* tokenize(char* str);

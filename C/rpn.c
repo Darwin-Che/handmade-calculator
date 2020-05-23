@@ -148,11 +148,11 @@ void shuntYard(struct TokenList* input){
     while (inputList){
         // for debug purpose
         // printf("inputlist: ");
-        // printEx(inputList);
+        // printTL(inputList);
         // printf("\nopstack: ");
-        // printEx(opStack);
+        // printTL(opStack);
         // printf("\noutputlist: ");
-        // printEx(outputList);
+        // printTL(outputList);
         // printf("\n-------------------\n");
         switch (inputList->EXTYPE)
         {
@@ -208,9 +208,9 @@ void shuntYard(struct TokenList* input){
     char s[30] = "\tlog[1-3)*log4\t";
     struct TokenList *t = tokenize(s);
     // printf("%d\n", t->EXTYPE);
-    // printEx(t);
+    // printTL(t);
     // printf("\n-----------------------\n");
     shuntYard(t);
-    printEx(outputList);
+    printTL(outputList);
     return 0;
 } */

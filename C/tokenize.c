@@ -121,10 +121,10 @@ struct TokenList* tokenize(char* str){
     struct TokenList* tmp;
     while (globalStr[strIndex]) {
         // next 2 lines for test purpose
-        // printEx(start->next);
+        // printTL(start->next);
         // printf("\n-------------\n");
         // work on tmp as the new node
-        // printEx(start->next);
+        // printTL(start->next);
         tmp = malloc(sizeof(struct TokenList)); 
         if (isnum(globalStr[strIndex])) {
             tmp->EXTYPE = NUM;
@@ -158,7 +158,7 @@ struct TokenList* tokenize(char* str){
 }
 
 // print the content for debug
-void printEx(struct TokenList* e){
+void printTL(struct TokenList* e){
     while (e) {
         printf(", ");
         if (e->EXTYPE == LP) {
@@ -192,7 +192,7 @@ void printEx(struct TokenList* e){
 }
 
 // free memory
-void freeEx(struct TokenList* e){
+void freeTL(struct TokenList* e){
     struct TokenList* cur = e;
     struct TokenList* next; 
     while (cur) {

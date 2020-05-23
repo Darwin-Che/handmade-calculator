@@ -56,14 +56,13 @@ void pushListOutput(struct TokenList* src){
     outputList = src;
 }
 
+// precond: the inputs are not empty
 // src is in inputList; tar is in opStack
 // 0: we should pop src to opStack;
 // 1: we should pop tar to outputList;
+// return 1 if the following is true; 
+// ((tar has greater precedence) or (tar has equal precedence and is left associative))
 int ifPopOp(struct TokenList* src, struct TokenList* tar){
-    if (!(src->EXTYPE == OP && tar->EXTYPE == OP)){
-        fprintf(stderr, "Wierd error #1\n");
-        exit(EXIT_FAILURE); /* indicate failure.*/
-    }
     switch (src->op->op)
     {
     case ADD:
@@ -103,7 +102,8 @@ int ifPopOp(struct TokenList* src, struct TokenList* tar){
             break;
         }
     case POW:
-       switch (tar->op->op)
+        // note POW is right associative
+        switch (tar->op->op)
         {
         case ADD:
         case SUB:
@@ -143,8 +143,8 @@ int ifPopOp(struct TokenList* src, struct TokenList* tar){
     }
 }
 
-void shuntYard(struct TokenList* input){
-    inputList = input;
+// for reference at https://en.wikipedia.org/wiki/Shunting-yard_algorithm
+void shuntYard(){
     while (inputList){
         // for debug purpose
         // printf("inputlist: ");
@@ -171,25 +171,23 @@ void shuntYard(struct TokenList* input){
                     exit(EXIT_FAILURE);
                 }
             }
-            if (opStack->EXTYPE == LP){
-                popListOp();
-                popListInp();
-            } else {
-                fprintf(stderr, "Wierd error #0\n");
-        	    exit(EXIT_FAILURE); /* indicate failure.*/
-            }
+            // popout the '(' in opStack and the ')' in inputList
+            free(popListOp());
+            free(popListInp());
             break;
         case NUM:
+            // transfer it to output
             pushListOutput(popListInp());
             break;
         case OP:
+            // complicate logic, reference https://en.wikipedia.org/wiki/Shunting-yard_algorithm
             while (opStack && opStack->EXTYPE == OP && ifPopOp(inputList, opStack)){
                 pushListOutput(popListOp());
             }
             pushListOp(popListInp());
             break;
         default:
-            fprintf(stderr, "Wierd error #2\n");
+            fprintf(stderr, "invalid token type\n");
             exit(EXIT_FAILURE);
             break;
         }
@@ -203,14 +201,3 @@ void shuntYard(struct TokenList* input){
         }
     }
 }
-
-/* int main(){
-    char s[30] = "\tlog[1-3)*log4\t";
-    struct TokenList *t = tokenize(s);
-    // printf("%d\n", t->EXTYPE);
-    // printTL(t);
-    // printf("\n-----------------------\n");
-    shuntYard(t);
-    printTL(outputList);
-    return 0;
-} */

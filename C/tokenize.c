@@ -108,11 +108,11 @@ struct Operator* readop(){
     return ans;
 }
 
-// the program alters the string, 
+// the program does not alters the input
+// create a TokenList in heap
 struct TokenList* tokenize(char* str){
     // first make the globalstr equal to the input
     strncpy(globalStr, str, 149);
-    // printf("%s", globalStr);
     // the answer to return is start->next, remember to free the first node
     struct TokenList* start = malloc(sizeof(struct TokenList));
     start->next = NULL;
@@ -151,7 +151,7 @@ struct TokenList* tokenize(char* str){
         prev = tmp;
     }
     // return start->next
-    // free start
+    // free start: the first node
     tmp = start->next;
     free(start);
     return tmp;
@@ -191,7 +191,7 @@ void printTL(struct TokenList* e){
     printf("\n");
 }
 
-// free memory
+// free memory of TokenList
 void freeTL(struct TokenList* e){
     struct TokenList* cur = e;
     struct TokenList* next; 

@@ -3,7 +3,10 @@
 #include <math.h>
 #include "evalrpn.h"
 
+// the reverse of result of rpn
+// initiated by eval
 struct TokenList *evalin = NULL;
+// final result
 struct NumberList *evalOut = NULL;
 
 void printNL(struct NumberList* e){
@@ -42,21 +45,28 @@ struct TokenList *reverseList(struct TokenList *src){
     return cur; 
 }
 
+// precond: INS is a binary operator
+// return a Number struct that is the result of the operation
+// the Number NUMTYPE is determined with respect to the operator and the NUMTYPE of each argument
 struct Number binOp(struct Number n1, struct Number n2, int INS){
+    // the answer
     struct Number ans;
     switch (INS)
     {
     case ADD:
         if (n1.NUMTYPE == INT && n2.NUMTYPE == INT) {
+            // if n1 and n2 are integers, result can be stored in integer
             ans.NUMTYPE = INT;
             ans.intnum = n1.intnum + n2.intnum;
         } else {
+            // if one of them is double, result should be stored in double
             ans.NUMTYPE = DOUBLE;
             ans.doublenum = (n1.NUMTYPE == INT ? n1.intnum : n1.doublenum) 
                           + (n2.NUMTYPE == INT ? n2.intnum : n2.doublenum);
         }
         break;
     case SUB: 
+        // similar to ADD
         if (n1.NUMTYPE == INT && n2.NUMTYPE == INT) {
             ans.NUMTYPE = INT;
             ans.intnum = n1.intnum - n2.intnum;
@@ -67,21 +77,38 @@ struct Number binOp(struct Number n1, struct Number n2, int INS){
         }
         break;
     case MUL:
+        // similar to ADD
         if (n1.NUMTYPE == INT && n2.NUMTYPE == INT) {
             ans.NUMTYPE = INT;
             ans.intnum = n1.intnum * n2.intnum;
         } else {
+            // although possible to store in integer like 3 * 0.3333
+            // consider double as not accurate number and int as accurate number
+            // we should carry the sign of inaccuracy of the arg to the result
+            // so always use double
             ans.NUMTYPE = DOUBLE;
             ans.doublenum = (n1.NUMTYPE == INT ? n1.intnum : n1.doublenum) 
                           * (n2.NUMTYPE == INT ? n2.intnum : n2.doublenum);
         }
         break;
     case DIV:
-        ans.NUMTYPE = DOUBLE;
-        ans.doublenum = (n1.NUMTYPE == INT ? n1.intnum : n1.doublenum) 
-                      / (n2.NUMTYPE == INT ? n2.intnum : n2.doublenum);
+        // similar to MULT
+        // but only store in integer when n1 divides n2
+        // cast error when n2 is zero
+        if ((n2.NUMTYPE == INT ? n2.intnum : n2.doublenum) == 0){
+            fprintf(stderr, "divide by 0\n");
+            exit(EXIT_FAILURE);
+        } else if (n1.NUMTYPE == INT && n2.NUMTYPE == INT && n1.intnum % n2.intnum == 0) {
+            ans.NUMTYPE = INT;
+            ans.intnum = n1.intnum / n2.intnum;
+        } else {
+            ans.NUMTYPE = DOUBLE;
+            ans.doublenum = (n1.NUMTYPE == INT ? n1.intnum : n1.doublenum) 
+                          / (n2.NUMTYPE == INT ? n2.intnum : n2.doublenum);
+        }
         break;
     case POW:
+        // similar to ADD
         if (n1.NUMTYPE == INT && n2.NUMTYPE == INT) {
             ans.NUMTYPE = INT;
             ans.intnum = pow(n1.intnum, n2.intnum);
@@ -99,11 +126,13 @@ struct Number binOp(struct Number n1, struct Number n2, int INS){
     return ans;
 }
 
+// similar to binOp but accpet unary operator
 struct Number unaOp(struct Number n1, int INS){
     struct Number ans;
     switch (INS)
     {
     case LOG:
+        // always use double for result of LOG
         ans.NUMTYPE = DOUBLE;
         ans.doublenum = log(n1.doublenum);
         break;
@@ -116,11 +145,16 @@ struct Number unaOp(struct Number n1, int INS){
 }
 
 void eval(struct TokenList *input){
+    // the reverse list function does not malloc, change source directly
     evalin = reverseList(input);
+    // for tracking the index of evalin
+    // NOTE: we donot change evalin from now on, need to free it later.
     struct TokenList *intmp = evalin;
+    // for tmp storage of evalout node
     struct NumberList *outtmp;
     while (intmp) {
         if (intmp->EXTYPE == NUM) {
+            // copy the node to evalout, use malloc
             outtmp = malloc(sizeof(struct NumberList));
             if ((outtmp->n.NUMTYPE = intmp->n->NUMTYPE) == INT) {
                 outtmp->n.intnum = intmp->n->intnum;
@@ -130,8 +164,10 @@ void eval(struct TokenList *input){
             outtmp->next = evalOut;
             evalOut = outtmp;
         } else if (intmp->EXTYPE == OP) {
+            // do operation on the arguments from evalout and replace the arguments with result
             switch (intmp->op->op)
             {
+            // these are the binary ops
             case ADD:
             case SUB:
             case MUL:
@@ -140,14 +176,17 @@ void eval(struct TokenList *input){
                 outtmp = malloc(sizeof(struct NumberList));
                 outtmp->n = binOp(evalOut->next->n, evalOut->n, intmp->op->op);
                 outtmp->next = evalOut->next->next;
+                // free the args
                 free(evalOut->next);
                 free(evalOut);
                 evalOut = outtmp;
                 break;
+            // these are the unary ops
             case LOG:
                 outtmp = malloc(sizeof(struct NumberList));
                 outtmp->n = unaOp(evalOut->n, intmp->op->op);
                 outtmp->next = evalOut->next;
+                // free args
                 free(evalOut);
                 evalOut = outtmp;
                 break;
@@ -159,6 +198,7 @@ void eval(struct TokenList *input){
         }
         intmp= intmp->next;
     }
+    // we should end up with only one Number
     if (evalOut->next) {
         fprintf(stderr, "after computation left with something more than a number\n");
         exit(EXIT_FAILURE);

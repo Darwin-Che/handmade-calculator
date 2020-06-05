@@ -119,7 +119,9 @@ struct TokenList* tokenize(char* str){
     // some variable to use in the loop
     struct TokenList* prev = start;
     struct TokenList* tmp;
-    while (globalStr[strIndex]) {
+    printf("%send\n",globalStr);
+    while (strIndex <= 149 && globalStr[strIndex]) {
+        printf("%d\n", strIndex);
         // next 2 lines for test purpose
         // printTL(start->next);
         // printf("\n-------------\n");

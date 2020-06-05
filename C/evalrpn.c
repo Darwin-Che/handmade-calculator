@@ -129,12 +129,16 @@ struct Number binOp(struct Number n1, struct Number n2, int INS){
 // similar to binOp but accpet unary operator
 struct Number unaOp(struct Number n1, int INS){
     struct Number ans;
+    ans.NUMTYPE = DOUBLE;
     switch (INS)
     {
     case LOG:
         // always use double for result of LOG
-        ans.NUMTYPE = DOUBLE;
-        ans.doublenum = log(n1.doublenum);
+        if (n1.NUMTYPE == INT) {
+            ans.doublenum = log(n1.intnum);
+        } else {
+            ans.doublenum = log(n1.doublenum);
+        }
         break;
     default:
         fprintf(stderr, "invalid UnaryOp\n");
@@ -173,6 +177,11 @@ void eval(struct TokenList *input){
             case MUL:
             case DIV:
             case POW:
+                // we should have at least 2 numbers in evalOut
+                if (!evalOut || !(evalOut->next)){
+                    fprintf(stderr, "not enough operands\n");
+                    exit(EXIT_FAILURE);
+                }
                 outtmp = malloc(sizeof(struct NumberList));
                 outtmp->n = binOp(evalOut->next->n, evalOut->n, intmp->op->op);
                 outtmp->next = evalOut->next->next;
@@ -183,6 +192,10 @@ void eval(struct TokenList *input){
                 break;
             // these are the unary ops
             case LOG:
+                if (!evalOut){
+                    fprintf(stderr, "not enough operands\n");
+                    exit(EXIT_FAILURE);
+                }
                 outtmp = malloc(sizeof(struct NumberList));
                 outtmp->n = unaOp(evalOut->n, intmp->op->op);
                 outtmp->next = evalOut->next;

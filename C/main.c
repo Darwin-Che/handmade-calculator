@@ -6,7 +6,7 @@ int main(){
     char input[150];
     // scanf("%149s", input);
     fgets(input, 149, stdin);
-    printf("%s\n",input);
+    // printf("%s\n",input);
     // malloc a TokenList
     inputList = tokenize(input);
     // donot malloc, but inputList and opStack are empty, tranfered to outputList

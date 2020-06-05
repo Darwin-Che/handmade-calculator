@@ -1,0 +1,23 @@
+<h3>
+    Instructions
+</h3>
+<ul>
+    <li>nonnegative numbers</li>
+    <li>operators: +, -, *, /, log, (), {}, []</li>
+    <li>cannot deal with too large numbers</li>
+</ul>
+<h3>
+    Examples
+</h3>
+<ul>
+    <li>(2+3.0)*(log5)</li>
+    <li>(7-6*4)/5.66</li>
+    <li>(0-0.33)*100</li>
+</ul>
+<textarea id="calcArea" rows="2" cols="50" type="text" class="calcTextbox"></textarea>
+<button onclick="sendStrToServer()">Calculate</button>
+<button onclick="document.getElementById('calcArea').value = ''">Clear input field</button>
+<p>
+    Result:
+</p>
+<textarea id="resultArea" readonly hidden="true" rows="2" cols="50" type="text" class="calcTextbox"></textarea>

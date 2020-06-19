@@ -141,7 +141,7 @@ struct TokenList* tokenize(char* str){
             // manually increment strIndex
             free(tmp);
             ++strIndex;
-            continue; 
+            continue;
         } else {
             tmp->EXTYPE = OP;
             tmp->op = readop();
